@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Font Awesome -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+  />
+
+  <title>Weather App</title>
+
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Poppins&display=swap");
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Poppins", sans-serif;
+    }
+
+    body {
+      background: #1e1e1e;
+      color: #171717;
+    }
+
+    .container {
+      background-color: #fff;
+      padding: 2rem;
+      width: 40%;
+      margin: 4rem auto;
+      border-radius: 10px;
+    }
+
+    .weather_header {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .weather_search {
+      position: relative;
+      width: 100%;
+    }
+
+    input {
+      width: 100%;
+      border: none;
+      background: #1e1e1e;
+      color: #fff;
+      outline: none;
+      padding: 0.6rem 2.5rem;
+      border-radius: 5px;
+    }
+
+    input::placeholder {
+      color: #f7f7f7;
+    }
+
+    .weather_search i {
+      position: absolute;
+      left: 10px;
+      top: 10px;
+      color: #fff;
+    }
+
+    .weather_body {
+      text-align: center;
+      margin-top: 2.5rem;
+    }
+
+    .weather_forecast {
+      background: #1e1e1e;
+      color: #fff;
+      display: inline-block;
+      padding: 0.4rem 1rem;
+      border-radius: 20px;
+      margin: 1rem 0;
+    }
+
+    .weather_icon img {
+      width: 120px;
+    }
+
+    .weather_temperature {
+      font-size: 2rem;
+      font-weight: bold;
+    }
+
+    .weather_minmax {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      font-size: 14px;
+      margin-top: 0.5rem;
+    }
+
+    .weather_info {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      margin-top: 2.5rem;
+    }
+
+    .weather_card {
+      display: flex;
+      align-items: center;
+      background: #f7f7f7;
+      padding: 1rem;
+      border-radius: 10px;
+    }
+
+    .weather_card i {
+      font-size: 1.5rem;
+      margin-right: 1rem;
+    }
+
+    @media (max-width: 900px) {
+      .container {
+        width: 90%;
+      }
+    }
+
+    @media (max-width: 400px) {
+      .weather_info {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <section class="container">
+    <!-- Search -->
+    <div class="weather_header">
+      <form class="weather_search">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" class="city_name" placeholder="Search your city..." />
+      </form>
+    </div>
+
+    <!-- Weather Body -->
+    <div class="weather_body">
+      <h2 class="weather_city"></h2>
+      <p class="weather_date_time"></p>
+
+      <p class="weather_forecast"></p>
+      <div class="weather_icon"></div>
+
+      <p class="weather_temperature"></p>
+
+      <div class="weather_minmax">
+        <p class="weather_min"></p>
+        <p class="weather_max"></p>
+      </div>
+    </div>
+
+    <!-- Weather Info -->
+    <section class="weather_info">
+
+      <div class="weather_card">
+        <i class="fa-solid fa-temperature-half"></i>
+        <div>
+          <p>Feels Like</p>
+          <p class="weather_feelsLike"></p>
+        </div>
+      </div>
+
+      <div class="weather_card">
+        <i class="fa-solid fa-droplet"></i>
+        <div>
+          <p>Humidity</p>
+          <p class="weather_humidity"></p>
+        </div>
+      </div>
+
+      <div class="weather_card">
+        <i class="fa-solid fa-wind"></i>
+        <div>
+          <p>Wind</p>
+          <p class="weather_wind"></p>
+        </div>
+      </div>
+
+      <div class="weather_card">
+        <i class="fa-solid fa-gauge-high"></i>
+        <div>
+          <p>Pressure</p>
+          <p class="weather_pressure"></p>
+        </div>
+      </div>
+
+    </section>
+  </section>
+
+  <script>
+    const API_KEY = "30cd6ff2dad2bd36918d1107cf72ec99";
+
+    let city = "Kolkata";
+
+    const cityEl = document.querySelector(".weather_city");
+    const dateEl = document.querySelector(".weather_date_time");
+    const forecastEl = document.querySelector(".weather_forecast");
+    const tempEl = document.querySelector(".weather_temperature");
+    const iconEl = document.querySelector(".weather_icon");
+    const minEl = document.querySelector(".weather_min");
+    const maxEl = document.querySelector(".weather_max");
+    const feelsEl = document.querySelector(".weather_feelsLike");
+    const humidityEl = document.querySelector(".weather_humidity");
+    const windEl = document.querySelector(".weather_wind");
+    const pressureEl = document.querySelector(".weather_pressure");
+
+    document.querySelector(".weather_search").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const input = document.querySelector(".city_name");
+      if (!input.value.trim()) return;
+      city = input.value.trim();
+      input.value = "";
+      getWeather();
+    });
+
+    const getCountryName = (code) =>
+      new Intl.DisplayNames(["en"], { type: "region" }).of(code);
+
+    const getDateTime = (dt) =>
+      new Intl.DateTimeFormat("en-US", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "numeric",
+        minute: "numeric",
+      }).format(new Date(dt * 1000));
+
+    async function getWeather() {
+      try {
+        const res = await fetch(
+          `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${API_KEY}`
+        );
+        const data = await res.json();
+
+        if (data.cod !== 200) {
+          alert("City not found");
+          return;
+        }
+
+        cityEl.innerHTML = `${data.name}, ${getCountryName(data.sys.country)}`;
+        dateEl.innerHTML = getDateTime(data.dt);
+        forecastEl.innerHTML = data.weather[0].main;
+        iconEl.innerHTML = `<img src="https://openweathermap.org/img/wn/${data.weather[0].icon}@4x.png">`;
+
+        tempEl.innerHTML = `${data.main.temp.toFixed()}°C`;
+        minEl.innerHTML = `Min: ${data.main.temp_min.toFixed()}°C`;
+        maxEl.innerHTML = `Max: ${data.main.temp_max.toFixed()}°C`;
+
+        feelsEl.innerHTML = `${data.main.feels_like.toFixed()}°C`;
+        humidityEl.innerHTML = `${data.main.humidity}%`;
+        windEl.innerHTML = `${(data.wind.speed * 3.6).toFixed(1)} km/h`;
+        pressureEl.innerHTML = `${data.main.pressure} hPa`;
+
+      } catch (err) {
+        alert("Error fetching data");
+        console.error(err);
+      }
+    }
+
+    window.addEventListener("load", getWeather);
+  </script>
+
+</body>
+</html>
