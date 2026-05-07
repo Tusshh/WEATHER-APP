@@ -1,5 +1,7 @@
 # 🌦 Weather App
 
+🔗 **Live Demo:** https://tusshh.github.io/WEATHER-APP/
+
 A responsive weather web application that provides real-time weather updates using API integration. Users can search for any city and get accurate weather details with a clean and modern UI.
 
 ---
@@ -49,7 +51,3 @@ A responsive weather web application that provides real-time weather updates usi
   - Wind speed  
   - Humidity  
   - Pressure  
-
----
-
-
